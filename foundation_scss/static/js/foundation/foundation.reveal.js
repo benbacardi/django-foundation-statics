@@ -4,7 +4,7 @@
   Foundation.libs.reveal = {
     name : 'reveal',
 
-    version : '5.1.1',
+    version : '5.0.3',
 
     locked : false,
 
@@ -35,22 +35,22 @@
     },
 
     init : function (scope, method, options) {
+      Foundation.inherit(this, 'delay');
       $.extend(true, this.settings, method, options);
       this.bindings(method, options);
     },
 
     events : function (scope) {
-      var self = this,
-          S = self.S;
+      var self = this;
 
-      S(this.scope)
+      $('[data-reveal-id]', this.scope)
         .off('.reveal')
-        .on('click.fndtn.reveal', '[' + this.add_namespace('data-reveal-id') + ']', function (e) {
+        .on('click.fndtn.reveal', function (e) {
           e.preventDefault();
 
           if (!self.locked) {
-            var element = S(this),
-                ajax = element.data(self.data_attr('reveal-ajax'));
+            var element = $(this),
+                ajax = element.data('reveal-ajax');
 
             self.locked = true;
 
@@ -64,26 +64,29 @@
           }
         });
 
-      S(document)
+      $(this.scope)
+        .off('.reveal');
+
+      $(document)
         .on('click.fndtn.reveal', this.close_targets(), function (e) {
 
           e.preventDefault();
 
           if (!self.locked) {
-            var settings = S('[' + self.attr_name() + '].open').data(self.attr_name(true) + '-init'),
-                bg_clicked = S(e.target)[0] === S('.' + settings.bg_class)[0];
+            var settings = $('[data-reveal].open').data('reveal-init'),
+                bg_clicked = $(e.target)[0] === $('.' + settings.bg_class)[0];
 
             if (bg_clicked && !settings.close_on_background_click) {
               return;
             }
 
             self.locked = true;
-            self.close.call(self, bg_clicked ? S('[' + self.attr_name() + '].open') : S(this).closest('[' + self.attr_name() + ']'));
+            self.close.call(self, bg_clicked ? $('[data-reveal].open') : $(this).closest('[data-reveal]'));
           }
         });
 
-      if(S('[' + self.attr_name() + ']', this.scope).length > 0) {
-        S(this.scope)
+      if($('[data-reveal]', this.scope).length > 0) {
+        $(this.scope)
           // .off('.reveal')
           .on('open.fndtn.reveal', this.settings.open)
           .on('opened.fndtn.reveal', this.settings.opened)
@@ -92,14 +95,14 @@
           .on('closed.fndtn.reveal', this.settings.closed)
           .on('closed.fndtn.reveal', this.close_video);
       } else {
-        S(this.scope)
+        $(this.scope)
           // .off('.reveal')
-          .on('open.fndtn.reveal', '[' + self.attr_name() + ']', this.settings.open)
-          .on('opened.fndtn.reveal', '[' + self.attr_name() + ']', this.settings.opened)
-          .on('opened.fndtn.reveal', '[' + self.attr_name() + ']', this.open_video)
-          .on('close.fndtn.reveal', '[' + self.attr_name() + ']', this.settings.close)
-          .on('closed.fndtn.reveal', '[' + self.attr_name() + ']', this.settings.closed)
-          .on('closed.fndtn.reveal', '[' + self.attr_name() + ']', this.close_video);
+          .on('open.fndtn.reveal', '[data-reveal]', this.settings.open)
+          .on('opened.fndtn.reveal', '[data-reveal]', this.settings.opened)
+          .on('opened.fndtn.reveal', '[data-reveal]', this.open_video)
+          .on('close.fndtn.reveal', '[data-reveal]', this.settings.close)
+          .on('closed.fndtn.reveal', '[data-reveal]', this.settings.closed)
+          .on('closed.fndtn.reveal', '[data-reveal]', this.close_video);
       }
 
       return true;
@@ -110,9 +113,9 @@
       var self = this;
 
       // PATCH #1: fixing multiple keyup event trigger from single key press
-      self.S('body').off('keyup.fndtn.reveal').on('keyup.fndtn.reveal', function ( event ) {
-        var open_modal = self.S('[' + self.attr_name() + '].open'),
-            settings = open_modal.data(self.attr_name(true) + '-init');
+      $('body').off('keyup.fndtn.reveal').on('keyup.fndtn.reveal', function ( event ) {
+        var open_modal = $('[data-reveal].open'),
+            settings = open_modal.data('reveal-init');
         // PATCH #2: making sure that the close event can be called only while unlocked,
         //           so that multiple keyup.fndtn.reveal events don't prevent clean closing of the reveal window.
         if ( settings && event.which === 27  && settings.close_on_esc && !self.locked) { // 27 is the keycode for the Escape key
@@ -125,7 +128,7 @@
 
     // PATCH #3: turning on key up capture only when a reveal window is open
     key_up_off : function (scope) {
-      this.S('body').off('keyup.fndtn.reveal');
+      $('body').off('keyup.fndtn.reveal');
       return true;
     },
 
@@ -133,20 +136,20 @@
       var self = this;
       if (target) {
         if (typeof target.selector !== 'undefined') {
-          var modal = self.S('#' + target.data(self.data_attr('reveal-id')));
+          var modal = $('#' + target.data('reveal-id'));
         } else {
-          var modal = self.S(this.scope);
+          var modal = $(this.scope);
 
           ajax_settings = target;
         }
       } else {
-        var modal = self.S(this.scope);
+        var modal = $(this.scope);
       }
 
-      var settings = modal.data(self.attr_name(true) + '-init');
+      var settings = modal.data('reveal-init');
 
       if (!modal.hasClass('open')) {
-        var open_modal = self.S('[' + self.attr_name() + '].open');
+        var open_modal = $('[data-reveal].open');
 
         if (typeof modal.data('css-top') === 'undefined') {
           modal.data('css-top', parseInt(modal.css('top'), 10))
@@ -168,7 +171,7 @@
 
         if (typeof ajax_settings === 'undefined' || !ajax_settings.url) {
           if (open_modal.length > 0) {
-            var open_modal_settings = open_modal.data(self.attr_name(true) + '-init');
+            var open_modal_settings = open_modal.data('reveal-init');
             this.hide(open_modal, open_modal_settings.css.close);
           }
 
@@ -183,10 +186,10 @@
               }
 
               modal.html(data);
-              self.S(modal).foundation('section', 'reflow');
+              $(modal).foundation('section', 'reflow');
 
               if (open_modal.length > 0) {
-                var open_modal_settings = open_modal.data(self.attr_name(true));
+                var open_modal_settings = open_modal.data('reveal-init');
                 self.hide(open_modal, open_modal_settings.css.close);
               }
               self.show(modal, settings.css.open);
@@ -199,9 +202,9 @@
     },
 
     close : function (modal) {
-      var modal = modal && modal.length ? modal : this.S(this.scope),
-          open_modals = this.S('[' + this.attr_name() + '].open'),
-          settings = modal.data(this.attr_name(true) + '-init');
+      var modal = modal && modal.length ? modal : $(this.scope),
+          open_modals = $('[data-reveal].open'),
+          settings = modal.data('reveal-init');
 
       if (open_modals.length > 0) {
         this.locked = true;
@@ -223,9 +226,9 @@
     },
 
     toggle_bg : function (modal) {
-      var settings = modal.data(this.attr_name(true));
+      var settings = modal.data('reveal-init');
 
-      if (this.S('.' + this.settings.bg_class).length === 0) {
+      if ($('.' + this.settings.bg_class).length === 0) {
         this.settings.bg = $('<div />', {'class': this.settings.bg_class})
           .appendTo('body');
       }
@@ -240,11 +243,10 @@
     show : function (el, css) {
       // is modal
       if (css) {
-        var settings = el.data(this.attr_name(true) + '-init');
+        var settings = el.data('reveal-init');
         if (el.parent('body').length === 0) {
           var placeholder = el.wrap('<div style="display: none;" />').parent(),
-              rootElement = this.settings.rootElement || 'body';
-
+              rootElement = this.settings.rootElement || 'body';;
           el.on('closed.fndtn.reveal.wrapped', function() {
             el.detach().appendTo(placeholder);
             el.unwrap().unbind('closed.fndtn.reveal.wrapped');
@@ -260,7 +262,7 @@
             opacity: 1
           };
 
-          return setTimeout(function () {
+          return this.delay(function () {
             return el
               .css(css)
               .animate(end_css, settings.animation_speed, 'linear', function () {
@@ -274,7 +276,7 @@
         if (/fade/i.test(settings.animation)) {
           var end_css = {opacity: 1};
 
-          return setTimeout(function () {
+          return this.delay(function () {
             return el
               .css(css)
               .animate(end_css, settings.animation_speed, 'linear', function () {
@@ -295,22 +297,20 @@
         return el.fadeIn(settings.animation_speed / 2);
       }
 
-      this.locked = false;
-
       return el.show();
     },
 
     hide : function (el, css) {
       // is modal
       if (css) {
-        var settings = el.data(this.attr_name(true) + '-init');
+        var settings = el.data('reveal-init');
         if (/pop/i.test(settings.animation)) {
           var end_css = {
             top: - $(window).scrollTop() - el.data('offset') + 'px',
             opacity: 0
           };
 
-          return setTimeout(function () {
+          return this.delay(function () {
             return el
               .animate(end_css, settings.animation_speed, 'linear', function () {
                 this.locked = false;
@@ -323,7 +323,7 @@
         if (/fade/i.test(settings.animation)) {
           var end_css = {opacity: 0};
 
-          return setTimeout(function () {
+          return this.delay(function () {
             return el
               .animate(end_css, settings.animation_speed, 'linear', function () {
                 this.locked = false;
@@ -347,8 +347,8 @@
     },
 
     close_video : function (e) {
-      var video = $('.flex-video', e.target),
-          iframe = $('iframe', video);
+      var video = $(this).find('.flex-video'),
+          iframe = video.find('iframe');
 
       if (iframe.length > 0) {
         iframe.attr('data-src', iframe[0].src);
@@ -358,7 +358,7 @@
     },
 
     open_video : function (e) {
-      var video = $('.flex-video', e.target),
+      var video = $(this).find('.flex-video'),
           iframe = video.find('iframe');
 
       if (iframe.length > 0) {
@@ -372,14 +372,6 @@
         }
         video.show();
       }
-    },
-
-    data_attr: function (str) {
-      if (this.namespace.length > 0) {
-        return this.namespace + '-' + str;
-      }
-
-      return str;
     },
 
     cache_offset : function (modal) {
