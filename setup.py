@@ -22,6 +22,21 @@ setup(
         'Topic :: Utilities',
     ],
     packages=['foundation', 'foundation_scss'],
-    package_data={'foundation': ['static/js/*.js', 'static/js/foundation/*.js', 'static/js/vendor/*.js', 'static/css/*.css',], 'foundation_scss': ['static/js/*.js', 'static/js/foundation/*.js', 'static/js/vendor/*.js', 'static/scss/*.scss', 'static/scss/foundation/*.scss', 'static/scss/foundation/components/*.scss'],},
+    package_data={
+        'foundation': [
+            'static/js/*.js',
+            'static/js/foundation/*.js',
+            'static/js/vendor/*.js',
+            'static/css/*.css',
+        ],
+        'foundation_scss': [
+            'static/js/*.js',
+            'static/js/foundation/*.js',
+            'static/js/vendor/*.js',
+            'static/scss/*.scss',
+            'static/scss/foundation/*.scss',
+            'static/scss/foundation/components/*.scss'
+        ],
+    },
     include_package_data=True,
 )
