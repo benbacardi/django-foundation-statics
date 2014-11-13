@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='django-foundation-statics',
-    version='5.4.7',
+    version='5.4.7-1',
     url='https://github.com/benbacardi/django-foundation-statics',
     description='Zurb Foundation (http://foundation.zurb.com) static files packaged in a django app to speed up new applications and deployment.',
     author='Ben Cardy',
